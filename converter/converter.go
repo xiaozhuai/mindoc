@@ -168,6 +168,8 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToEpub(); err != nil {
 								errs = append(errs, err.Error())
 								fmt.Println("转换EPUB文档失败：" + err.Error())
+							} else {
+								fmt.Println("转换EPUB文档成功")
 							}
 						}
 
@@ -176,6 +178,8 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToMobi(); err != nil {
 								errs = append(errs, err.Error())
 								fmt.Println("转换MOBI文档失败：" + err.Error())
+							} else {
+								fmt.Println("转换MOBI文档成功")
 							}
 						}
 					case "pdf":
@@ -183,6 +187,8 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToPdf(); err != nil {
 								fmt.Println("转换PDF文档失败：" + err.Error())
 								errs = append(errs, err.Error())
+							} else {
+								fmt.Println("转换PDF文档成功")
 							}
 						}
 					case "docx":
@@ -190,6 +196,8 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToDocx(); err != nil {
 								fmt.Println("转换WORD文档失败：" + err.Error())
 								errs = append(errs, err.Error())
+							} else {
+								fmt.Println("转换WORD文档成功")
 							}
 						}
 					}
@@ -540,12 +548,12 @@ func (this *Converter) convertToPdf() (err error) {
 
 	//header template
 	if len(this.Config.Header) > 0 {
-		args = append(args, "--pdf-header-template", "\""+this.Config.Header+"\"")
+		args = append(args, "--pdf-header-template", this.Config.Header)
 	}
 
 	//footer template
 	if len(this.Config.Footer) > 0 {
-		args = append(args, "--pdf-footer-template", "\""+this.Config.Footer+"\"")
+		args = append(args, "--pdf-footer-template", this.Config.Footer)
 	}
 
 	if strings.Count(this.Config.MarginLeft,"") > 0 {
