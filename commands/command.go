@@ -179,7 +179,7 @@ func RegisterFunction() {
 
 //解析命令
 func ResolveCommand(args []string) {
-	flagSet := flag.NewFlagSet("MinDoc command: ", flag.ExitOnError)
+	flagSet := flag.NewFlagSet("MinDoc command(xiaozhuai)", flag.ExitOnError)
 	flagSet.StringVar(&conf.ConfigurationFile, "config", "", "MinDoc configuration file.")
 	flagSet.StringVar(&conf.WorkingDirectory, "dir", "", "MinDoc working directory.")
 	flagSet.StringVar(&conf.LogFile, "log", "", "MinDoc log file path.")
