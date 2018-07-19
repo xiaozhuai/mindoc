@@ -494,13 +494,13 @@ func (this *Converter) convertToEpub() (err error) {
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.epub"),
 	}
-	//cmd := exec.Command(ebookConvert, args...)
-	//
-	//if this.Debug {
-	//	fmt.Println(cmd.Args)
-	//}
-	//fmt.Println("正在转换EPUB文件", args[0])
-	//return cmd.Run()
+	cmd := exec.Command(ebookConvert, args...)
+
+	if this.Debug {
+		fmt.Println(cmd.Args)
+	}
+	fmt.Println("正在转换 EPUB文件", args[0])
+	return cmd.Run()
 
 	return filetil.CopyFile(args[0],args[1])
 }
