@@ -168,8 +168,6 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToEpub(); err != nil {
 								errs = append(errs, err.Error())
 								fmt.Println("转换EPUB文档失败：" + err.Error())
-							} else {
-								fmt.Println("转换EPUB文档成功")
 							}
 						}
 
@@ -178,8 +176,6 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToMobi(); err != nil {
 								errs = append(errs, err.Error())
 								fmt.Println("转换MOBI文档失败：" + err.Error())
-							} else {
-								fmt.Println("转换MOBI文档成功")
 							}
 						}
 					case "pdf":
@@ -187,8 +183,6 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToPdf(); err != nil {
 								fmt.Println("转换PDF文档失败：" + err.Error())
 								errs = append(errs, err.Error())
-							} else {
-								fmt.Println("转换PDF文档成功")
 							}
 						}
 					case "docx":
@@ -196,8 +190,6 @@ func (convert *Converter) Convert() (err error) {
 							if err = convert.convertToDocx(); err != nil {
 								fmt.Println("转换WORD文档失败：" + err.Error())
 								errs = append(errs, err.Error())
-							} else {
-								fmt.Println("转换WORD文档成功")
 							}
 						}
 					}
@@ -502,13 +494,13 @@ func (this *Converter) convertToEpub() (err error) {
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.epub"),
 	}
-	cmd := exec.Command(ebookConvert, args...)
-
-	if this.Debug {
-		fmt.Println(cmd.Args)
-	}
-	fmt.Println("正在转换 EPUB文件", args[0])
-	return cmd.Run()
+	//cmd := exec.Command(ebookConvert, args...)
+	//
+	//if this.Debug {
+	//	fmt.Println(cmd.Args)
+	//}
+	//fmt.Println("正在转换 EPUB文件", args[0])
+	//return cmd.Run()
 
 	return filetil.CopyFile(args[0],args[1])
 }
