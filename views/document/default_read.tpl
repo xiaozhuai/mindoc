@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 
-    <title>{{.Model.BookName}} - Powered by MinDoc</title>
+    <title>{{.Model.BookName}}</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -131,12 +131,13 @@
             </div>
             <div class="m-copyright">
                 <p>
-                    本文档使用 <a href="https://www.iminho.me" target="_blank">MinDoc</a> 发布
+                    本文档使用 <b style="color: #10af88;">{{.SITE_NAME}}</b> 发布
                 </p>
             </div>
         </div>
         <div class="manual-right">
             <div class="manual-article">
+                <!--
                 <div class="article-head">
                     <div class="container-fluid">
                         <div class="row">
@@ -151,6 +152,7 @@
                         </div>
                     </div>
                 </div>
+                -->
                 <div class="article-content">
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
