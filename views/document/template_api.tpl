@@ -1,10 +1,6 @@
 ## Description
 - 通过access_token获取用户信息
 
->
->
->
-
 ## Request
 
 ### Method & Url
