@@ -307,6 +307,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		}
 	}
 
+	//todo 改页头样式
 	ebookConfig := converter.Config{
 		Charset:      "utf-8",
 		Cover:        m.Cover,

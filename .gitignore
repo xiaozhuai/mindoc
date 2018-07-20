@@ -25,3 +25,7 @@ _testmain.go
 .idea
 /conf/app.conf
 /vendor
+
+Gopkg.lock
+mindoc
+deploy_wuta_wiki

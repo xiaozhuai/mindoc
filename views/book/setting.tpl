@@ -464,7 +464,7 @@
 
                     $("#image-wraper").html($img);
                     window.ImageCropper = $('#image-wraper>img').cropper({
-                        aspectRatio: 175 / 230,
+                        aspectRatio: 350 / 460,
                         dragMode : 'move',
                         viewMode : 1,
                         preview : ".img-preview"
