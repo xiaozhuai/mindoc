@@ -42,17 +42,17 @@
 | Content-Type | string | Yes      | application/json | ResponseBody 为 json 类型 |
 
 ### Body
-| Field              | Type   | Required | Description                  |
-|--------------------|:------:|:--------:|------------------------------|
-| code               | string | Yes      | 状态码，OK为成功，其它为失败     |
-| msg                | string | Yes      | 失败提示信息，成功时为空         |
-| data               | object | Yes      | 返回数据包                    |
-|   ├─ user_id  | string | No       | 无他用户id                    |
-|   ├─ nick     | string | No       | 昵称                         |
-|   ├─ sex      | int    | No       | 性别，0：保密，1：男，2：女     |
-|   ├─ birthday | string | No       | 生日，格式：yyyy-mm-dd        |
-|   ├─ avatar   | string | No       | 头像链接                      |
-|   └─ sign     | string | No       | 数据包签名                    |
+| Field          | Type   | Required | Description                  |
+|----------------|:------:|:--------:|------------------------------|
+| code           | string | Yes      | 状态码，OK为成功，其它为失败     |
+| msg            | string | Yes      | 失败提示信息，成功时为空         |
+| data           | object | Yes      | 返回数据包                    |
+|   ├─ user_id   | string | No       | 无他用户id                    |
+|   ├─ nick      | string | No       | 昵称                         |
+|   ├─ sex       | int    | No       | 性别，0：保密，1：男，2：女     |
+|   ├─ birthday  | string | No       | 生日，格式：yyyy-mm-dd        |
+|   ├─ avatar    | string | No       | 头像链接                      |
+|   └─ sign      | string | No       | 数据包签名                    |
 
 ### Sample
 
