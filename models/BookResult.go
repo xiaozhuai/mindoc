@@ -314,7 +314,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		Timestamp:    time.Now().Format("2006-01-02 15:04:05"),
 		Description:  string(blackfriday.Run([]byte(m.Description))),
 		Footer:       "<p style='color:#8E8E8E;font-size:12px;'><span style='float:right'>- _PAGENUM_ -</span></p>",
-		Header:       "<p style='color:#8E8E8E;font-size:12px;text-align:center;'>_SECTION_</p>",
+		//Header:       "<p style='color:#8E8E8E;font-size:12px;text-align:center;'>_SECTION_</p>",
 		Identifier:   "",
 		Language:     "zh-CN",
 		Creator:      m.CreateName,
