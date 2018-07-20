@@ -344,7 +344,7 @@ func (c *BookController) UploadCover() {
 	filePath = filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+"_small"+ext)
 
 	//生成缩略图并保存到磁盘
-	err = graphics.ImageResizeSaveFile(subImg, 175, 230, filePath)
+	err = graphics.ImageResizeSaveFile(subImg, 350, 460, filePath)
 
 	if err != nil {
 		logs.Error("ImageResizeSaveFile => ", err.Error())
