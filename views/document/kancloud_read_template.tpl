@@ -68,7 +68,6 @@
         </div>
         <div class="manual-right">
             <div class="manual-article">
-                <!--
                 <div class="article-head">
                     <div class="container-fluid">
                         <div class="row">
@@ -85,7 +84,6 @@
                     </div>
 
                 </div>
-                -->
                 <div class="article-content">
                     <div class="article-body editor-content"  id="page-content">
                         <h2 id="h2-u7b80u4ecb"><a name="简介" class="reference-link"></a><span class="header-link octicon octicon-link"></span>简介</h2>

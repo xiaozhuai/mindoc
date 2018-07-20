@@ -137,7 +137,6 @@
         </div>
         <div class="manual-right">
             <div class="manual-article">
-                <!--
                 <div class="article-head">
                     <div class="container-fluid">
                         <div class="row">
@@ -152,7 +151,6 @@
                         </div>
                     </div>
                 </div>
-                -->
                 <div class="article-content">
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
