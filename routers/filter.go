@@ -39,8 +39,8 @@ func init() {
 	beego.InsertFilter("/blogs/*", beego.BeforeRouter,FilterUser)
 
 	var FinishRouter = func(ctx *context.Context) {
-		ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)
-		ctx.ResponseWriter.Header().Add("MinDoc-Site", "https://www.iminho.me")
+		//ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)
+		//ctx.ResponseWriter.Header().Add("MinDoc-Site", "https://www.iminho.me")
 	}
 
 	beego.InsertFilter("/*", beego.BeforeRouter, FinishRouter, false)
