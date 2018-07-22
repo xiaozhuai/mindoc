@@ -35,7 +35,7 @@
     background-color: #fff
 }
 .editormd-preview-container code {
-    padding: .2em 0;
+    padding: 1px 0;
     margin-left: 3px;
     margin-right: 3px;
     background-color: #eee;
