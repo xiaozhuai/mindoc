@@ -57,7 +57,7 @@
                             <p class="text">描述信息不超过500个字符</p>
                         </div>
                             <div class="form-group">
-                                <label>启用匿名访问</label>
+                                <label>启用匿名访问 (开启后私有项目可通过访问令牌访问，无需登录)</label>
                                 <div class="radio">
                                     <label class="radio-inline">
                                         <input type="radio" {{if eq .ENABLE_ANONYMOUS "true"}}checked{{end}} name="ENABLE_ANONYMOUS" value="true">开启<span class="text"></span>
