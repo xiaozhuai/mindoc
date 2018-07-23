@@ -220,7 +220,7 @@ func (b *Blog) FindToPager(pageIndex, pageSize int,memberId int,status string) (
 
 	if err != nil {
 		if err == orm.ErrNoRows {
-			return
+			err = nil
 		}
 		beego.Error("获取文章列表时出错 ->",err)
 		return
