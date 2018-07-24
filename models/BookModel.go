@@ -715,12 +715,18 @@ func (book *Book) ImportBook(zipPath string) error {
 					originalLink := links[0][2]
 					var linkPath string
 					var err error
+					if strings.HasPrefix(originalLink,"<") {
+						originalLink = strings.TrimPrefix(originalLink,"<")
+					}
+					if strings.HasSuffix(originalLink,">") {
+						originalLink = strings.TrimSuffix(originalLink,">")
+					}
 					//如果是从根目录开始，
-					if strings.HasPrefix(originalLink,"/") {
-						linkPath,err = filepath.Abs(filepath.Join(tempPath,originalLink))
-					}else if strings.HasPrefix(originalLink, "./"){
+					if strings.HasPrefix(originalLink, "/") {
+						linkPath, err = filepath.Abs(filepath.Join(tempPath, originalLink))
+					} else if strings.HasPrefix(originalLink, "./") {
 						linkPath, err = filepath.Abs(filepath.Join(filepath.Dir(path), originalLink[1:]))
-					}else{
+					} else{
 						linkPath, err = filepath.Abs(filepath.Join(filepath.Dir(path), originalLink))
 					}
 
@@ -728,7 +734,7 @@ func (book *Book) ImportBook(zipPath string) error {
 						//如果本地存在该链接
 						if filetil.FileExists(linkPath) {
 							ext := filepath.Ext(linkPath)
-							beego.Info("当前后缀 -> ",ext)
+							//beego.Info("当前后缀 -> ",ext)
 							//如果链接是Markdown文件，则生成文档标识,否则，将目标文件复制到项目目录
 							if strings.EqualFold(ext, ".md") || strings.EqualFold(ext, ".markdown") {
 								docIdentify := strings.Replace(strings.TrimPrefix(strings.Replace(linkPath, "\\", "/", -1), tempPath+"/"), "/", "-", -1)
