@@ -145,7 +145,7 @@ table>tbody>tr:hover{
     top: 55px;
     z-index: 301;
     bottom: 0;
-    width: 279px;
+    width: 300px;
     border-right: 1px solid #ddd;
     background-color: #fafafa;
 }
@@ -321,7 +321,7 @@ table>tbody>tr:hover{
     left: 0;
     right: 0;
     bottom: 0;
-    width: 275px;
+    width: 100%;
     overflow-y: auto;
     border-top: 1px solid #eee;
 }
