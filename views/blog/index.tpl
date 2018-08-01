@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="renderer" content="webkit">
     <meta name="keywords" content="{{.Model.BlogTitle}}">
-    <meta name="description" content="{{.Model.BlogExcerpt}}">
+    <meta name="description" content="{{.Model.BlogTitle}}-{{.Description}}">
     <title>{{.Model.BlogTitle}}</title>
 
     <!-- Bootstrap -->
@@ -47,6 +47,7 @@
             color: #666666;
             vertical-align: middle;
         }
+
         .blog-footer{
             margin: 25px auto;
             /*border-top: 1px solid #E5E5E5;*/

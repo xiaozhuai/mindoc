@@ -9,7 +9,7 @@
 ### Header
 | Header       | Type   | Required | Default          | Description              |
 |--------------|:------:|:--------:|------------------|--------------------------|
-| Content-Type | string | Yes      | application/json | ResquestBody 为 json 类型 |
+| Content-Type | string | Yes      | application/json | RequestBody 为 json 类型 |
 
 ### Body
 | Field        | Type   | Required | Default     | Description    |

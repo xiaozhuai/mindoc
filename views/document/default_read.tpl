@@ -2,14 +2,13 @@
 <html lang="zh-CN">
 <head>
 
-    <title>{{.Model.BookName}}</title>
-
+    <title>{{.Title}}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="renderer" content="webkit">
-    <meta name="keywords" content="{{.Model.BookName}}">
-    <meta name="description" content="{{.Model.Description}}">
+    <meta name="keywords" content="{{.Model.BookName}},{{.Title}}">
+    <meta name="description" content="{{.Title}}-{{if .Description}}{{.Description}}{{else}}{{.Model.Description}}{{end}}">
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
