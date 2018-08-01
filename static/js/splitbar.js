@@ -81,9 +81,9 @@ $(function () {
          * 屏幕大于 840px，重置左右窗口
          */
         outMaxWidthReset: function () {
-            $('.manual-right').css('left', '300px');
-            $('.manual-left').css('width', '300px');
-            $('#manual-vsplitbar').css('left', '296px').css('display', 'block');
+            $('.manual-right').css('left', '279px');
+            $('.manual-left').css('width', '279px');
+            $('#manual-vsplitbar').css('left', '275px').css('display', 'block');
         }
     }
 
