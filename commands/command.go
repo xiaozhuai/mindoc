@@ -32,7 +32,7 @@ func RegisterDataBase() {
 	beego.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
 
-	if adapter == "mysql" {
+	if strings.EqualFold(adapter, "mysql") {
 		host := beego.AppConfig.String("db_host")
 		database := beego.AppConfig.String("db_database")
 		username := beego.AppConfig.String("db_username")
@@ -43,7 +43,7 @@ func RegisterDataBase() {
 		if err == nil {
 			orm.DefaultTimeLoc = location
 		} else {
-			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:", err)
+			beego.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
 		}
 
 		port := beego.AppConfig.String("db_port")
@@ -51,10 +51,10 @@ func RegisterDataBase() {
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
 		if err := orm.RegisterDataBase("default", "mysql", dataSource); err != nil {
-			beego.Error("注册默认数据库失败:", err)
+			beego.Error("注册默认数据库失败->", err)
 			os.Exit(1)
 		}
-	} else if adapter == "sqlite3" {
+	} else if strings.EqualFold(adapter, "sqlite3") {
 		orm.DefaultTimeLoc = time.UTC
 		database := beego.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
@@ -67,7 +67,7 @@ func RegisterDataBase() {
 		err := orm.RegisterDataBase("default", "sqlite3", database)
 
 		if err != nil {
-			beego.Error("注册默认数据库失败:", err)
+			beego.Error("注册默认数据库失败->", err)
 		}
 	} else {
 		beego.Error("不支持的数据库类型.")
@@ -108,7 +108,12 @@ func RegisterLogger(log string) {
 		logs.Async(1e3)
 	}
 	if log == "" {
-		log = conf.WorkingDir("runtime","logs")
+		logPath,err := filepath.Abs(beego.AppConfig.DefaultString("log_path",conf.WorkingDir("runtime","logs")))
+		if err == nil {
+			log = logPath
+		}else{
+			log = conf.WorkingDir("runtime","logs")
+		}
 	}
 
 	logPath := filepath.Join(log, "log.log")
@@ -235,9 +240,7 @@ func ResolveCommand(args []string) {
 			conf.WorkingDirectory = filepath.Dir(p)
 		}
 	}
-	if conf.LogFile == "" {
-		conf.LogFile = conf.WorkingDir("runtime","logs")
-	}
+
 	if conf.ConfigurationFile == "" {
 		conf.ConfigurationFile = conf.WorkingDir( "conf", "app.conf")
 		config := conf.WorkingDir("conf", "app.conf.example")
@@ -252,6 +255,16 @@ func ResolveCommand(args []string) {
 	if err := beego.LoadAppConfig("ini", conf.ConfigurationFile);err != nil {
 		log.Fatal("An error occurred:", err)
 	}
+	if conf.LogFile == "" {
+		logPath,err := filepath.Abs(beego.AppConfig.DefaultString("log_path",conf.WorkingDir("runtime","logs")))
+		if err == nil {
+			conf.LogFile = logPath
+		}else{
+			conf.LogFile = conf.WorkingDir("runtime","logs")
+		}
+	}
+
+	conf.AutoLoadDelay = beego.AppConfig.DefaultInt("config_auto_delay",0)
 	uploads := conf.WorkingDir("uploads")
 
 	os.MkdirAll(uploads, 0666)
@@ -281,6 +294,7 @@ func RegisterCache() {
 	isOpenCache := beego.AppConfig.DefaultBool("cache", false)
 	if !isOpenCache {
 		cache.Init(&cache.NullCache{})
+		return
 	}
 	beego.Info("正常初始化缓存配置.")
 	cacheProvider := beego.AppConfig.String("cache_provider")
@@ -354,13 +368,13 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
+			beego.Error("初始化 Redis 缓存失败 ->", err)
 			os.Exit(1)
 		}
 		memcache, err := beegoCache.NewCache("memcache", string(bc))
 
 		if err != nil {
-			beego.Error("初始化Memcache缓存失败:", err)
+			beego.Error("初始化 Memcache 缓存失败 ->", err)
 			os.Exit(1)
 		}
 
@@ -372,6 +386,43 @@ func RegisterCache() {
 		return
 	}
 	beego.Info("缓存初始化完成.")
+}
+
+//自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
+func RegisterAutoLoadConfig()  {
+	if conf.AutoLoadDelay > 0 {
+		ticker := time.NewTicker(time.Second * time.Duration(conf.AutoLoadDelay))
+
+		go func() {
+			f,err := os.Stat(conf.ConfigurationFile)
+			if err != nil {
+				beego.Error("读取配置文件时出错 ->",err)
+				return
+			}
+			modTime := f.ModTime()
+			for {
+				select {
+				case <-ticker.C:
+					f,err := os.Stat(conf.ConfigurationFile)
+					if err != nil {
+						beego.Error("读取配置文件时出错 ->",err)
+						break
+					}
+					if modTime != f.ModTime() {
+						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
+							beego.Error("An error occurred ->", err)
+							break
+						}
+						modTime = f.ModTime()
+						RegisterCache()
+
+						RegisterLogger("")
+						beego.Info("配置文件已加载")
+					}
+				}
+			}
+		}()
+	}
 }
 
 func init() {
