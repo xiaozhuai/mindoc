@@ -60,7 +60,6 @@
     border: none;
     overflow: auto;
     line-height: 1.45;
-    max-height: 35em;
     position: relative;
     /*background: url(../editor.md/lib/highlight/blueprint.png) #F6F6F6;*/
     -moz-background-size: 30px,30px;
@@ -89,9 +88,9 @@
     color: #999;
 }
 .editormd-preview-container ol.linenums>li:first-child,.editormd-html-preview ol.linenums>li:first-child{
-    padding-top: 10px;
+    margin-top: 10px;
 }
 .editormd-preview-container ol.linenums>li:last-child ,.editormd-html-preview ol.linenums>li:last-child{
-    padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
