@@ -27,10 +27,10 @@
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/highlight/styles/"}}{{if .HighlightStyle}}{{.HighlightStyle}}{{else}}{{end}}.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/quill/quill.core.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/quill/quill.snow.css"}}" rel="stylesheet">
@@ -381,6 +381,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/quill.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
@@ -418,10 +419,9 @@
                         formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
                         pick: "#filePicker",
                         fileVal : "editormd-file-file",
-                        fileNumLimit : 1,
-                        compress : false
+                        compress : false,
+                        fileSingleSizeLimit: {{.UploadFileSize}}
                     }).on("beforeFileQueued",function (file) {
-                        uploader.reset();
                         this.options.formData.doc_id = window.selectNode.id;
                     }).on( 'fileQueued', function( file ) {
                         var item = {
@@ -431,20 +431,18 @@
                             file_name : file.name,
                             message : "正在上传"
                         };
-                        window.vueApp.lists.splice(0,0,item);
+                        window.vueApp.lists.push(item);
 
                     }).on("uploadError",function (file,reason) {
                         for(var i in window.vueApp.lists){
                             var item = window.vueApp.lists[i];
                             if(item.attachment_id == file.id){
                                 item.state = "error";
-                                item.message = "上传失败";
-                                break;
+                                item.message = "上传失败:" + reason;
                             }
                         }
 
                     }).on("uploadSuccess",function (file, res) {
-
                         for(var index in window.vueApp.lists){
                             var item = window.vueApp.lists[index];
                             if(item.attachment_id === file.id){
@@ -455,19 +453,19 @@
                                     item.message = res.message;
                                     item.state = "error";
                                 }
-                                break;
                             }
                         }
-
-                    }).on("beforeFileQueued",function (file) {
-
-                    }).on("uploadComplete",function () {
 
                     }).on("uploadProgress",function (file, percentage) {
                         var $li = $( '#'+file.id ),
                                 $percent = $li.find('.progress .progress-bar');
 
                         $percent.css( 'width', percentage * 100 + '%' );
+                    }).on("error", function (type) {
+                        if(type === "F_EXCEED_SIZE"){
+                            layer.msg("文件超过了限定大小");
+                        }
+                        console.log(type);
                     });
                 }catch(e){
                     console.log(e);

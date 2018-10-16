@@ -1,7 +1,6 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,800");
 body {
     position: relative;
-    font-family: Helvetica, -apple-system, "Montserrat","Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
+    font-family: Helvetica, -apple-system, "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
 }
 
 a{
@@ -337,6 +336,8 @@ textarea{
 .book-list .list-item .desc-text{
     font-size: 12px;
     margin: 5px;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 .book-list .list-item .info{
     font-size: 12px;
@@ -356,6 +357,7 @@ textarea{
 }
 .dashboard .summary{
     margin-top: 15px;
+    word-break: break-all;
 }
 /************文档成员*************************/
 .users-list .list-item{
@@ -423,6 +425,7 @@ textarea{
     margin: 0 15px;
     padding: 10px 20px;
     line-height: 25px;
+    word-break: break-word;
 }
 .manual-search-reader .search-item:hover{
     background-color: #F5F5F5;
@@ -758,11 +761,12 @@ textarea{
 
 .ui.items>.item>.content>.description {
     margin-top: .6em;
-    max-width: auto;
     font-size: 1em;
     line-height: 1.4285em;
     color: rgba(0,0,0,.87);
     min-height: 40px;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .ui.items>.item>.content p {

@@ -25,12 +25,14 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/astaxie/beego/cache/redis"
+	"github.com/howeyc/fsnotify"
 )
 
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
 	beego.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
+	orm.DefaultTimeLoc = time.Local
 
 	if strings.EqualFold(adapter, "mysql") {
 		host := beego.AppConfig.String("db_host")
@@ -54,15 +56,23 @@ func RegisterDataBase() {
 			beego.Error("注册默认数据库失败->", err)
 			os.Exit(1)
 		}
+
 	} else if strings.EqualFold(adapter, "sqlite3") {
-		orm.DefaultTimeLoc = time.UTC
+
 		database := beego.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
 			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
 		}
+		if p,err := filepath.Abs(database); err == nil {
+			database = p
+		}
 
 		dbPath := filepath.Dir(database)
-		os.MkdirAll(dbPath, 0777)
+
+		if _,err := os.Stat(dbPath); err != nil && os.IsNotExist(err) {
+			os.MkdirAll(dbPath, 0777)
+		}
+
 
 		err := orm.RegisterDataBase("default", "sqlite3", database)
 
@@ -91,9 +101,11 @@ func RegisterModel() {
 		new(models.Migration),
 		new(models.Label),
 		new(models.Blog),
+		new(models.Template),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
+	gob.Register(models.Template{})
 	//migrate.RegisterMigration()
 }
 
@@ -368,7 +380,7 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
-			beego.Error("初始化 Redis 缓存失败 ->", err)
+			beego.Error("初始化 Memcache 缓存失败 ->", err)
 			os.Exit(1)
 		}
 		memcache, err := beegoCache.NewCache("memcache", string(bc))
@@ -391,37 +403,37 @@ func RegisterCache() {
 //自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
 func RegisterAutoLoadConfig()  {
 	if conf.AutoLoadDelay > 0 {
-		ticker := time.NewTicker(time.Second * time.Duration(conf.AutoLoadDelay))
 
+		watcher, err := fsnotify.NewWatcher()
+
+		if err != nil {
+			beego.Error("创建配置文件监控器失败 ->",err)
+		}
 		go func() {
-			f,err := os.Stat(conf.ConfigurationFile)
-			if err != nil {
-				beego.Error("读取配置文件时出错 ->",err)
-				return
-			}
-			modTime := f.ModTime()
 			for {
 				select {
-				case <-ticker.C:
-					f,err := os.Stat(conf.ConfigurationFile)
-					if err != nil {
-						beego.Error("读取配置文件时出错 ->",err)
-						break
-					}
-					if modTime != f.ModTime() {
+				case ev := <-watcher.Event:
+					//如果是修改了配置文件
+					if ev.IsModify() {
 						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 							beego.Error("An error occurred ->", err)
 							break
 						}
-						modTime = f.ModTime()
 						RegisterCache()
-
 						RegisterLogger("")
-						beego.Info("配置文件已加载")
+						beego.Info("配置文件已加载 ->", conf.ConfigurationFile)
 					}
+				case err := <-watcher.Error:
+					beego.Error("配置文件监控器错误 ->", err)
 				}
 			}
 		}()
+
+		err = watcher.Watch(conf.ConfigurationFile)
+
+		if err != nil {
+			beego.Error("监控配置文件失败 ->",err)
+		}
 	}
 }
 
@@ -430,7 +442,7 @@ func init() {
 	if configPath, err := filepath.Abs(conf.ConfigurationFile); err == nil {
 		conf.ConfigurationFile = configPath
 	}
-	gocaptcha.ReadFonts("./static/fonts", ".ttf")
+	gocaptcha.ReadFonts(conf.WorkingDir("static","fonts"), ".ttf")
 	gob.Register(models.Member{})
 
 	if p, err := filepath.Abs(os.Args[0]); err == nil {

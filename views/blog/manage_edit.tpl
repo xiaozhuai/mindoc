@@ -27,14 +27,8 @@
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css"}}?_=1533629948" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="{{cdncss "/static/css/markdown.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 
@@ -97,7 +91,7 @@
     <div class="manual-body">
         <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 920px;left: 0;">
             <div class="manual-editormd">
-                <div id="docEditor" class="manual-editormd-active"><textarea style="display:none;">{{.Model.BlogContent}}</textarea></div>
+                <div id="docEditor" class="manual-editormd-active"><textarea style="display: none">{{str2html .Model.BlogContent}}</textarea> </div>
             </div>
             <div class="manual-editor-status">
                 <div id="attachInfo" class="item">0 个附件</div>
@@ -106,6 +100,7 @@
 
     </div>
 </div>
+
 <!-- Modal -->
 
 <div class="modal fade" id="uploadAttachModal" tabindex="-1" role="dialog" aria-labelledby="uploadAttachModalLabel">
@@ -217,11 +212,12 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/editor.md/editormd.js"}}?_=1533638577" type="text/javascript"></script>
+<script src="{{cdnjs "/static/editor.md/editormd.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/editor.js"}}?_=1533638577" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/blog.js"}}?_=1533629945" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/editor.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/blog.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         window.vueApp.lists = {{.AttachList}};
@@ -241,10 +237,8 @@
                         formData : { "blogId" : {{.Model.BlogId}}},
                         pick: "#filePicker",
                         fileVal : "editormd-file-file",
-                        fileNumLimit : 1,
+                        fileSingleSizeLimit: {{.UploadFileSize}},
                         compress : false
-                    }).on("beforeFileQueued",function (file) {
-                        uploader.reset();
                     }).on( 'fileQueued', function( file ) {
                         var item = {
                             state : "wait",
@@ -253,15 +247,14 @@
                             file_name : file.name,
                             message : "正在上传"
                         };
-                        window.vueApp.lists.splice(0,0,item);
+                        window.vueApp.lists.push(item);
 
                     }).on("uploadError",function (file,reason) {
                         for(var i in window.vueApp.lists){
                             var item = window.vueApp.lists[i];
                             if(item.attachment_id == file.id){
                                 item.state = "error";
-                                item.message = "上传失败";
-                                break;
+                                item.message = "上传失败：" + reason;
                             }
                         }
 
@@ -271,25 +264,23 @@
                             var item = window.vueApp.lists[index];
                             if(item.attachment_id === file.id){
                                 if(res.errcode === 0) {
-                                    window.vueApp.lists.splice(index, 1, res.attach);
-
+                                    window.vueApp.lists.splice(index, 1, res.attach?res.attach:res.data);
                                 }else{
                                     item.message = res.message;
                                     item.state = "error";
                                 }
-                                break;
                             }
                         }
-
-                    }).on("beforeFileQueued",function (file) {
-
-                    }).on("uploadComplete",function () {
-
                     }).on("uploadProgress",function (file, percentage) {
                         var $li = $( '#'+file.id ),
                                 $percent = $li.find('.progress .progress-bar');
 
                         $percent.css( 'width', percentage * 100 + '%' );
+                    }).on("error", function (type) {
+                        if(type === "F_EXCEED_SIZE"){
+                            layer.msg("文件超过了限定大小");
+                        }
+                        console.log(type);
                     });
                 }catch(e){
                     console.log(e);

@@ -17,6 +17,7 @@ $(function () {
         fileUploadURL: window.fileUploadURL,
         taskList: true,
         flowChart: true,
+        mermaid: true,
         htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
         lineNumbers: false,
         sequenceDiagram: true,
@@ -41,8 +42,8 @@ $(function () {
             };
             this.addKeyMap(keyMap);
 
-
             uploadImage("docEditor", function ($state, $res) {
+                console.log("注册上传图片")
                 if ($state === "before") {
                     return layer.load(1, {
                         shade: [0.1, '#fff'] // 0.1 透明度的白色背景
@@ -117,7 +118,6 @@ $(function () {
                 if ($res.errcode === 0) {
                     resetEditorChanged(false);
                     window.blogVersion = $res.data.version;
-                    console.log(window.blogVersion);
                 } else if($res.errcode === 6005) {
                     var confirmIndex = layer.confirm('文档已被其他人修改确定覆盖已存在的文档吗？', {
                         btn: ['确定', '取消'] // 按钮

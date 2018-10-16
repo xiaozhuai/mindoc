@@ -13,19 +13,15 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/kancloud.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/lib/mermaid/mermaid.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/kancloud.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/highlight/styles/"}}{{if .HighlightStyle}}{{.HighlightStyle}}{{else}}github{{end}}.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css"}}" media="print" rel="stylesheet">
-    <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
     <style type="text/css">
         .header{
             min-height: 1rem;
@@ -89,6 +85,9 @@
                 <div class="item">{{.Model.ModifyRealName}}</div>
                 <div class="item">修改于</div>
                 <div class="item">{{date .Model.Modified "Y-m-d H:i:s"}}</div>
+                {{if eq .Member.MemberId .Model.MemberId}}
+                    <div class="item"><a href='{{urlfor "BlogController.ManageEdit" ":id" .Model.BlogId}}' title="文章编辑"><i class="fa fa-edit"></i> 编辑</a></div>
+                {{end}}
             </div>
         </div>
         <div class="row">
@@ -128,7 +127,5 @@
 </div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
-<script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/kancloud.js"}}" type="text/javascript"></script>
 </body>
 </html>

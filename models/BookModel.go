@@ -1,7 +1,6 @@
 package models
 
 import (
-	"bytes"
 	"crypto/md5"
 	"errors"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -24,6 +22,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/requests"
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
+	"encoding/json"
 )
 
 // Book struct .
@@ -71,6 +70,17 @@ type Book struct {
 	Version       int64     `orm:"type(bigint);column(version)" json:"version"`
 	//是否使用第一篇文章项目为默认首页,0 否/1 是
 	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0)" json:"is_use_first_document"`
+	//是否开启自动保存：0 否/1 是
+	AutoSave	int 		`orm:"column(auto_save);type(tinyint);default(0)" json:"auto_save"`
+}
+
+func (book *Book) String()  string {
+	ret, err := json.Marshal(*book)
+
+	if err != nil {
+		return ""
+	}
+	return string(ret)
 }
 
 // TableName 获取对应数据库表名.
@@ -128,13 +138,13 @@ func (book *Book) Insert() error {
 	return err
 }
 
-func (book *Book) Find(id int) (*Book, error) {
+func (book *Book) Find(id int,cols ...string) (*Book, error) {
 	if id <= 0 {
 		return book, ErrInvalidParameter
 	}
 	o := orm.NewOrm()
 
-	err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", id).One(book)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", id).One(book,cols...)
 
 	return book, err
 }
@@ -213,7 +223,7 @@ func (book *Book) Copy(identify string) error {
 		return err
 	}
 	if len(docs) > 0 {
-		if err := recursiveInsertDocument(docs,o,book.BookId,0);err != nil {
+		if err := recursiveInsertDocument(docs,o, book.BookId,0);err != nil {
 			beego.Error("复制项目时出错 -> ",err)
 			o.Rollback()
 			return err
@@ -286,10 +296,10 @@ func (book *Book) FindByFieldFirst(field string, value interface{}) (*Book, erro
 }
 
 //根据项目标识查询项目
-func (book *Book) FindByIdentify(identify string) (*Book, error) {
+func (book *Book) FindByIdentify(identify string,cols ...string) (*Book, error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book,cols...)
 
 	return book, err
 }
@@ -363,37 +373,54 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 	}
 	o.Begin()
 
-	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
+	//删除附件,这里没有删除实际物理文件
+	_,err = o.Raw("DELETE FROM " + NewAttachment().TableNameWithPrefix() + " WHERE book_id=?",book.BookId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
 
-	_, err = o.Raw(sql2, book.BookId).Exec()
+	//删除文档
+	_, err = o.Raw( "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?", book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql3 := "DELETE FROM " + book.TableNameWithPrefix() + " WHERE book_id = ?"
-
-	_, err = o.Raw(sql3, book.BookId).Exec()
+	//删除项目
+	_, err = o.Raw("DELETE FROM " + book.TableNameWithPrefix() + " WHERE book_id = ?", book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql4, book.BookId).Exec()
-
+	//删除关系
+	_, err = o.Raw("DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?", book.BookId).Exec()
 	if err != nil {
 		o.Rollback()
-
 		return err
 	}
+	//删除模板
+	_,err = o.Raw("DELETE FROM " + NewTemplate().TableNameWithPrefix() + " WHERE book_id = ?",book.BookId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
 
 	if book.Label != "" {
 		NewLabel().InsertOrUpdateMulti(book.Label)
 	}
 
-	os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(id)))
+	//删除导出缓存
+	if err := os.RemoveAll(filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(id))); err != nil {
+		beego.Error("删除项目缓存失败 ->",err)
+	}
+	//删除附件和图片
+	if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads",book.Identify)); err != nil {
+		beego.Error("删除项目附件和图片失败 ->",err)
+	}
 
 	return o.Commit()
 
@@ -493,66 +520,15 @@ func (book *Book) ReleaseContent(bookId int) {
 	o := orm.NewOrm()
 
 	var docs []*Document
-	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id", "identify", "content")
+	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs)
 
 	if err != nil {
 		beego.Error("发布失败 =>",bookId, err)
 		return
 	}
 	for _, item := range docs {
-		if item.Content != "" {
-			item.Release = item.Content
-			bufio := bytes.NewReader([]byte(item.Content))
-			//解析文档中非本站的链接，并设置为新窗口打开
-			if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
-
-				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
-					if src, ok := contentSelection.Attr("href"); ok {
-						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
-							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
-							if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
-								contentSelection.SetAttr("target", "_blank")
-								if html, err := content.Html(); err == nil {
-									item.Release = html
-								}
-							}
-						}
-
-					}
-				})
-			}
-		}
-
-		attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
-		if err == nil && len(attachList) > 0 {
-			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
-			for _, attach := range attachList {
-				if strings.HasPrefix(attach.HttpPath, "/") {
-					attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
-				}
-				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
-
-				content.WriteString(li)
-			}
-			content.WriteString("</ul></div>")
-			item.Release += content.String()
-		}
-		_, err = o.Update(item, "release")
-		if err != nil {
-			beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
-		} else {
-			//当文档发布后，需要清除已缓存的转换文档和文档缓存
-			if doc, err := NewDocument().Find(item.DocumentId); err == nil {
-				doc.PutToCache()
-			} else {
-				doc.RemoveCache()
-			}
-
-			if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId))); err != nil {
-				beego.Error("删除已缓存的文档目录失败 => ",filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId)))
-			}
-
-		}
+		item.BookId = bookId
+		item.ReleaseContent()
 	}
 }
 
@@ -864,7 +840,7 @@ func (book *Book) ImportBook(zipPath string) error {
 		beego.Error("导入项目异常 => ", err)
 		book.Description = "【项目导入存在错误：" + err.Error() + "】"
 	}
-	beego.Info("项目导入完毕 => ",book.BookName)
+	beego.Info("项目导入完毕 => ", book.BookName)
 	book.ReleaseContent(book.BookId)
 	return err
 }

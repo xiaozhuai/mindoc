@@ -62,14 +62,15 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 
 	member := &Member{}
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("account", account).Filter("status", 0).One(member)
+	//err := o.QueryTable(m.TableNameWithPrefix()).Filter("account", account).Filter("status", 0).One(member)
+	err := o.Raw("select * from md_members where (account = ? or email = ?) and status = 0 limit 1;",account,account).QueryRow(member)
 
 	if err != nil {
 		if beego.AppConfig.DefaultBool("ldap_enable", false) == true {
 			logs.Info("转入LDAP登陆")
 			return member.ldapLogin(account, password)
 		} else {
-			logs.Error("用户登录 => ", err)
+			logs.Error("用户登录 ->", err)
 			return member, ErrMemberNoExist
 		}
 	}
@@ -204,11 +205,10 @@ func (m *Member) Update(cols ...string) error {
 	return nil
 }
 
-func (m *Member) Find(id int) (*Member, error) {
+func (m *Member) Find(id int,cols ...string) (*Member, error) {
 	o := orm.NewOrm()
 
-	m.MemberId = id
-	if err := o.Read(m); err != nil {
+	if err := o.QueryTable(m.TableNameWithPrefix()).Filter("member_id",id).One(m,cols...); err != nil {
 		return m, err
 	}
 	m.ResolveRoleName()
@@ -404,6 +404,18 @@ func (m *Member) Delete(oldId int, newId int) error {
 		return err
 	}
 	_, err = o.Raw("UPDATE md_blogs SET modify_at = ? WHERE modify_at = ?", newId, oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
+	_, err = o.Raw("UPDATE md_templates SET modify_at = ? WHERE modify_at = ?", newId, oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
+	_, err = o.Raw("UPDATE md_templates SET member_id = ? WHERE member_id = ?", newId, oldId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err

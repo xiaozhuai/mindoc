@@ -12,6 +12,8 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/filetil"
+	"path/filepath"
 )
 
 type BaseController struct {
@@ -56,9 +58,6 @@ func (c *BaseController) Prepare() {
 				}
 			}
 		}
-		//c.Member = models.NewMember()
-		//c.Member.Find(1)
-		//c.Data["Member"] = *c.Member
 	}
 	conf.BaseUrl = c.BaseUrl()
 	c.Data["BaseUrl"] = c.BaseUrl()
@@ -68,16 +67,15 @@ func (c *BaseController) Prepare() {
 		for _, item := range options {
 			c.Data[item.OptionName] = item.OptionValue
 			c.Option[item.OptionName] = item.OptionValue
-
-			if strings.EqualFold(item.OptionName, "ENABLE_ANONYMOUS") && item.OptionValue == "true" {
-				c.EnableAnonymous = true
-			}
-			if strings.EqualFold(item.OptionName, "ENABLE_DOCUMENT_HISTORY") && item.OptionValue == "true" {
-				c.EnableDocumentHistory = true
-			}
 		}
+		c.EnableAnonymous = strings.EqualFold(c.Option["ENABLE_ANONYMOUS"], "true")
+		c.EnableDocumentHistory = strings.EqualFold(c.Option["ENABLE_DOCUMENT_HISTORY"],"true")
 	}
 	c.Data["HighlightStyle"] = beego.AppConfig.DefaultString("highlight_style","github")
+
+	if filetil.FileExists(filepath.Join(beego.BConfig.WebConfig.ViewsPath,"widgets","scripts.tpl")) {
+		c.LayoutSections["Scripts"] = "widgets/scripts.tpl"
+	}
 }
 
 // SetMember 获取或设置当前登录用户信息,如果 MemberId 小于 0 则标识删除 Session
@@ -161,7 +159,6 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	if errCode >= 200 && errCode <= 510 {
 		c.CustomAbort(errCode, buf.String())
 	}else{
-		c.CustomAbort(200, buf.String())
+		c.CustomAbort(500, buf.String())
 	}
-
 }

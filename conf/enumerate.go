@@ -7,6 +7,8 @@ import (
 	"github.com/astaxie/beego"
 	"strconv"
 	"path/filepath"
+	"os"
+	"fmt"
 )
 
 // 登录用户的Session名
@@ -17,7 +19,6 @@ const CaptchaSessionName = "__captcha__"
 const RegexpEmail = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 
 //允许用户名中出现点号
-
 const RegexpAccount = `^[a-zA-Z][a-zA-z0-9\.]{2,50}$`
 
 // PageSize 默认分页条数.
@@ -73,7 +74,7 @@ var (
 
 // app_key
 func GetAppKey() string {
-	return beego.AppConfig.DefaultString("app_key", "godoc")
+	return beego.AppConfig.DefaultString("app_key", "mindoc")
 }
 
 func GetDatabasePrefix() string {
@@ -185,6 +186,9 @@ func IsAllowUploadFileExt(ext string) bool {
 	exts := GetUploadFileExt()
 
 	for _, item := range exts {
+		if item == "*" {
+			return  true
+		}
 		if strings.EqualFold(item, ext) {
 			return true
 		}
@@ -240,10 +244,15 @@ func URLForWithCdnImage(p string) string  {
 	return cdn + p
 }
 
-func URLForWithCdnCss (p string) string {
+func URLForWithCdnCss (p string,v ...string) string {
 	cdn := beego.AppConfig.DefaultString("cdncss", "")
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
+	}
+	filePath := WorkingDir(p)
+
+	if f,err := os.Stat(filePath); err == nil && !strings.Contains(p, "?") && len(v) > 0 && v[0] == "version" {
+		p = p + fmt.Sprintf("?v=%s" , f.ModTime().Format("20060102150405"))
 	}
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
@@ -268,11 +277,18 @@ func URLForWithCdnCss (p string) string {
 	return cdn + p
 }
 
-func URLForWithCdnJs(p string) string {
+func URLForWithCdnJs(p string,v ...string) string {
 	cdn := beego.AppConfig.DefaultString("cdnjs", "")
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
 	}
+
+	filePath := WorkingDir(p)
+
+	if f,err := os.Stat(filePath); err == nil && !strings.Contains(p, "?") && len(v) > 0 && v[0] == "version" {
+		p = p + fmt.Sprintf("?v=%s" , f.ModTime().Format("20060102150405"))
+	}
+
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
 		baseUrl := beego.AppConfig.DefaultString("baseurl","")
@@ -301,4 +317,16 @@ func WorkingDir(elem ...string) string {
 	elems := append([]string{ WorkingDirectory },elem...)
 
 	return filepath.Join(elems...)
+}
+
+func init()  {
+	if p,err := filepath.Abs("./conf/app.conf"); err == nil {
+		ConfigurationFile = p
+	}
+	if p,err := filepath.Abs("./"); err == nil {
+		WorkingDirectory = p
+	}
+	if p,err := filepath.Abs("./runtime/logs"); err == nil {
+		LogFile = p
+	}
 }
