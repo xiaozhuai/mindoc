@@ -28,12 +28,12 @@ func (c *HomeController) Index() {
 	pageIndex, _ := c.GetInt("page", 1)
 	pageSize := 18
 
-	member_id := 0
+	memberId := 0
 
 	if c.Member != nil {
-		member_id = c.Member.MemberId
+		memberId = c.Member.MemberId
 	}
-	books, totalCount, err := models.NewBook().FindForHomeToPager(pageIndex, pageSize, member_id)
+	books, totalCount, err := models.NewBook().FindForHomeToPager(pageIndex, pageSize, memberId)
 
 	if err != nil {
 		beego.Error(err)
@@ -48,12 +48,4 @@ func (c *HomeController) Index() {
 	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(pageSize)))
 
 	c.Data["Lists"] = books
-
-	labels, totalCount, err := models.NewLabel().FindToPager(1, 10)
-
-	if err != nil {
-		c.Data["Labels"] = make([]*models.Label, 0)
-	} else {
-		c.Data["Labels"] = labels
-	}
 }

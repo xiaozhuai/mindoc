@@ -4,22 +4,24 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.LabelName}}</title>
+
+    <title>项目空间{{.Model.ItemName}}的项目列表</title>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
+
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 <div class="manual-reader manual-container manual-search-reader">
-    {{template "widgets/header.tpl" .}}
+{{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="search-head">
-            <strong class="search-title">显示标签为"{{.LabelName}}"的项目</strong>
+            <strong class="search-title">显示项目空间为"{{.Model.ItemName}}"的项目</strong>
         </div>
         <div class="row">
             <div class="manual-list">
-                {{range $index,$item := .Lists}}
+            {{range $index,$item := .Lists}}
                 <div class="list-item">
                     <dl class="manual-item-standard">
                         <dt>
@@ -39,18 +41,21 @@
                         </dd>
                     </dl>
                 </div>
-                {{else}}
-                    <div class="text-center" style="height: 200px;margin: 100px;font-size: 28px;">暂无项目</div>
-                {{end}}
+            {{else}}
+                <div class="search-empty">
+                    <img src="{{cdnimg "/static/images/search_empty.png"}}" class="empty-image">
+                    <span class="empty-text">暂无项目</span>
+                </div>
+            {{end}}
 
                 <div class="clearfix"></div>
             </div>
             <nav class="pagination-container">
-                {{.PageHtml}}
+            {{.PageHtml}}
             </nav>
         </div>
     </div>
-    {{template "widgets/footer.tpl" .}}
+{{template "widgets/footer.tpl" .}}
 </div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>

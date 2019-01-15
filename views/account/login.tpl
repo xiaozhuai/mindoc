@@ -6,9 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="SmartWiki" />
     <title>用户登录</title>
-
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
@@ -28,6 +26,7 @@
     <div class="row login">
         <div class="login-body">
             <form role="form" method="post">
+            {{ .xsrfdata }}
                 <h3 class="text-center">用户登录</h3>
                 <div class="form-group">
                     <div class="input-group">

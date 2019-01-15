@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="SmartWiki" />
     <title>找回密码</title>
 
     <!-- Bootstrap -->
@@ -34,6 +33,7 @@
     <div class="row login">
         <div class="login-body">
             <form role="form" method="post" id="findPasswordForm" action="{{urlfor "AccountController.ValidEmail"}}">
+            {{ .xsrfdata }}
                 <input type="hidden" name="token" value="{{.Token}}">
                 <input type="hidden" name="mail" value="{{.Email}}">
                 <h3 class="text-center">找回密码</h3>

@@ -6,7 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="SmartWiki" />
     <title>用户注册</title>
 
     <!-- Bootstrap -->
@@ -34,6 +33,7 @@
     <div class="row login">
         <div class="login-body">
             <form role="form" method="post" id="registerForm">
+            {{ .xsrfdata }}
                 <h3 class="text-center">用户注册</h3>
                 <div class="form-group">
                     <div class="input-group">

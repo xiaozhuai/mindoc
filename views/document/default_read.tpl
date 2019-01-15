@@ -7,9 +7,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="renderer" content="webkit">
-    <meta name="keywords" content="{{.Model.BookName}},{{.Title}}">
-    <meta name="description" content="{{.Title}}-{{if .Description}}{{.Description}}{{else}}{{.Model.Description}}{{end}}">
-
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
 
@@ -40,12 +37,14 @@
             <div class="navbar-header pull-right manual-menu">
                 <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> 打印</a>
                 {{if gt .Member.MemberId 0}}
-                {{if gt .Model.RelationshipId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-right">
-                   <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
+                    <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
+                    {{if eq .Model.RoleId 0 1}}
+                    <a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="btn btn-success"><i class="fa fa-user" aria-hidden="true"></i> 成员</a>
+                    <a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="btn btn-primary"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a>
+                    {{end}}
                 </div>
-                {{end}}
                 {{end}}
                 {{end}}
                 <div class="dropdown pull-right" style="margin-right: 10px;">

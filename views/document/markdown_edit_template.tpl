@@ -94,6 +94,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="引用"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="GFM 任务列表"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="Json转换为表格"><i class="fa fa-wrench item" aria-hidden="true" name="json"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="模板"><i class="fa fa-tachometer last" name="template"></i></a>
 
         </div>
@@ -153,6 +154,8 @@
                     <label class="col-sm-2 control-label">文档名称 <span class="error-message">*</span></label>
                     <div class="col-sm-10">
                         <input type="text" name="doc_name" id="documentName" placeholder="文档名称" class="form-control"  maxlength="50">
+                        <p style="color: #999;font-size: 12px;">在目录的文档名上右键可以删除和修改文档名称以及添加下级文档</p>
+
                     </div>
                 </div>
                 <div class="form-group">
@@ -388,6 +391,29 @@
         </div>
     </div>
 </div>
+<!--- json转换为表格 -->
+<div class="modal fade" id="convertJsonToTableModal" tabindex="-1" role="dialog" aria-labelledby="convertJsonToTableModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" id="convertJsonToTableForm" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Json转换为表格</h4>
+                </div>
+                <div class="modal-body text-center">
+                        <textarea type="text" name="jsonContent" id="jsonContent" placeholder="Json" class="form-control" style="height: 300px;resize: none"></textarea>
+
+                </div>
+                <div class="modal-footer">
+                    <span id="json-error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btnInsertTable" data-loading-text="保存中...">插入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <template id="template-normal">
 {{template "document/template_normal.tpl"}}
 </template>

@@ -38,7 +38,29 @@ func init() {
 	beego.Router("/manager/label/list", &controllers.ManagerController{},"get:LabelList")
 	beego.Router("/manager/label/delete/:id", &controllers.ManagerController{},"post:LabelDelete")
 
-	beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
+	//beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
+
+	beego.Router("/manager/team", &controllers.ManagerController{}, "*:Team")
+	beego.Router("/manager/team/create", &controllers.ManagerController{}, "POST:TeamCreate")
+	beego.Router("/manager/team/edit", &controllers.ManagerController{}, "POST:TeamEdit")
+	beego.Router("/manager/team/delete", &controllers.ManagerController{}, "POST:TeamDelete")
+
+	beego.Router("/manager/team/member/list/:id", &controllers.ManagerController{}, "*:TeamMemberList")
+	beego.Router("/manager/team/member/add", &controllers.ManagerController{}, "POST:TeamMemberAdd")
+	beego.Router("/manager/team/member/delete", &controllers.ManagerController{}, "POST:TeamMemberDelete")
+	beego.Router("/manager/team/member/change_role", &controllers.ManagerController{}, "POST:TeamChangeMemberRole")
+	beego.Router("/manager/team/member/search", &controllers.ManagerController{}, "*:TeamSearchMember")
+
+
+	beego.Router("/manager/team/book/list/:id", &controllers.ManagerController{}, "*:TeamBookList")
+	beego.Router("/manager/team/book/add", &controllers.ManagerController{}, "POST:TeamBookAdd")
+	beego.Router("/manager/team/book/delete", &controllers.ManagerController{}, "POST:TeamBookDelete")
+	beego.Router("/manager/team/book/search", &controllers.ManagerController{}, "*:TeamSearchBook")
+
+	beego.Router("/manager/itemsets", &controllers.ManagerController{},"*:Itemsets")
+	beego.Router("/manager/itemsets/edit", &controllers.ManagerController{},"post:ItemsetsEdit")
+	beego.Router("/manager/itemsets/delete", &controllers.ManagerController{},"post:ItemsetsDelete")
+
 
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")
@@ -50,8 +72,12 @@ func init() {
 	beego.Router("/book/:key/users", &controllers.BookController{}, "*:Users")
 	beego.Router("/book/:key/release", &controllers.BookController{}, "post:Release")
 	beego.Router("/book/:key/sort", &controllers.BookController{}, "post:SaveSort")
+	beego.Router("/book/:key/teams", &controllers.BookController{}, "*:Team")
+
 
 	beego.Router("/book/create", &controllers.BookController{}, "*:Create")
+	beego.Router("/book/itemsets/search", &controllers.BookController{}, "*:ItemsetsSearch")
+
 	beego.Router("/book/users/create", &controllers.BookMemberController{}, "post:AddMember")
 	beego.Router("/book/users/change", &controllers.BookMemberController{}, "post:ChangeRole")
 	beego.Router("/book/users/delete", &controllers.BookMemberController{}, "post:RemoveMember")
@@ -64,6 +90,11 @@ func init() {
 	beego.Router("/book/setting/upload", &controllers.BookController{}, "post:UploadCover")
 	beego.Router("/book/setting/token", &controllers.BookController{}, "post:CreateToken")
 	beego.Router("/book/setting/delete", &controllers.BookController{}, "post:Delete")
+
+	beego.Router("/book/team/add", &controllers.BookController{}, "POST:TeamAdd")
+	beego.Router("/book/team/delete", &controllers.BookController{}, "POST:TeamDelete")
+	beego.Router("/book/team/search", &controllers.BookController{}, "*:TeamSearch")
+
 
 	//管理文章的路由
 	beego.Router("/manage/blogs", &controllers.BlogController{},"*:ManageList")
@@ -114,4 +145,8 @@ func init() {
 
 	beego.Router("/tag/:key", &controllers.LabelController{}, "get:Index")
 	beego.Router("/tags", &controllers.LabelController{}, "get:List")
+
+	beego.Router("/items", &controllers.ItemsetsController{},"get:Index")
+	beego.Router("/items/:key", &controllers.ItemsetsController{},"get:List")
+
 }
